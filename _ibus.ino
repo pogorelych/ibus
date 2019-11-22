@@ -187,16 +187,18 @@ class Ibus {
       onMsg(handler)
     {}
 
+    // call it in setup(). 
+    // bind led indicator, status pin and waits until bus is free to begin listening
     void init() {
       pinMode(statusPin, INPUT);
       pinMode(statusLed, OUTPUT);
-    
-      //wait until ibus free to begin serial
       while (digitalRead(statusPin) == IBUS_BUSY) {}
       serial.begin(9600, SERIAL_8E1);
     }
       
-    // will be nice to attach interrupt
+    // do it the main loop. 
+    // sets appropiate led indicator, check bus state(FIXME will be nice to attach interrupt)
+    // tries to send message from queue
     void routine() {
       int ibusState = digitalRead(statusPin);
       digitalWrite(statusLed, ibusState);
@@ -206,7 +208,10 @@ class Ibus {
       } else {
         if (!isWriting && !queue.isEmpty()) {
           IbusMsg& ibusMsg = queue.peek();
-          write(ibusMsg); //supposed to be non blocking.
+          //supposed to be non-blocking since serial buffer is supposed to be empty
+          //because ibusState = IBUS_FREE, and isWriting=false
+          //but there is no guaranties, since we can't check buffer availability.
+          write(ibusMsg); 
           isWriting = true;
         }
       }
