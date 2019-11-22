@@ -54,7 +54,8 @@ class Ibus {
       private:
         static const int BUFFER_SIZE = 256;
         byte buff[BUFFER_SIZE];
-        byte start, end = 0;
+        byte start = 0;
+        byte end = 0;
 
       public:
         inline boolean put(byte b) {
