@@ -114,13 +114,11 @@ class Ibus {
     HardwareSerial& serial;
 
     void scanIbusBuffer() {
-      IbusMsg ibusMsg;
-            
       while (buffer.available() >= MIN_IBUS_MSG_SIZE) {
         
         switch (ibusState()) {
-          case MESSAGE:
-            messageFromBuffer(ibusMsg, buffer);
+          case MESSAGE: {
+            IbusMsg ibusMsg = messageFromBuffer(buffer);
             buffer.remove(ibusMsg.fullLength());
 
             if (!queue.isEmpty() && ibusMsg == queue.peek()) {
@@ -131,6 +129,7 @@ class Ibus {
 
             (*onMsg)(ibusMsg);
             break;
+          }
           case NOT_ENOUGH:
             return;
           case CKSUM_MISMATCH:
@@ -152,7 +151,8 @@ class Ibus {
       return MESSAGE;
     }
 
-    void messageFromBuffer(IbusMsg &msg, Buffer &buff) {
+    IbusMsg messageFromBuffer(Buffer &buff) {
+      IbusMsg msg; 
       msg.tx     = buff[0];
       msg.len    = buff[1];
       msg.rx     = buff[2];
@@ -163,6 +163,7 @@ class Ibus {
       for (byte i = 0; i < lngth; i++)
         data[i] = buff[i + 4];
       msg.data = data;
+      return msg;
     }
 
     void write(IbusMsg &msg) {
