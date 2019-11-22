@@ -43,10 +43,11 @@ class Ibus {
     static const byte MIN_IBUS_MSG_SIZE = 5; //TX + LEN + RX + CMD + CKSUM
     static const byte MAX_IBUS_MSG_SIZE = MAX_IBUS_DATA_SIZE + MIN_IBUS_MSG_SIZE;
 
+    //current buffer content status
     enum IbusState {
-      MESSAGE,
-      CKSUM_MISMATCH,
-      NOT_ENOUGH
+      MESSAGE, //we have full message at the beginning of the buffer
+      CKSUM_MISMATCH,  //data inconsistency detected
+      NOT_ENOUGH //there isn't enough data to parse message
     };
 
     class Buffer {
